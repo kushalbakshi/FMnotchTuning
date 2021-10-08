@@ -7,7 +7,12 @@ def plot_notch_raster(filelocation, site, channel, poststim_window):
     sr = 40000
     poststim_window *= sr
 
-    spikes = np.loadtxt(filelocation+'/Spiketimes/{0}_FMnotch_chn'.format(site)+str(channel)+'_times.txt', delimiter=',')
+    try:
+        spikes = np.loadtxt(filelocation+'/Spiketimes/{0}_FMnotch_chn'.format(site)+str(channel)+'_times.txt',
+                            delimiter=',')
+    except ValueError:
+        spikes = np.loadtxt(filelocation+'/Spiketimes/{0}_FMnotch_chn'.format(site)+str(channel)+'_times.txt',
+                            delimiter=',', skiprows=1)
     spikes = spikes[:, 0] * sr
 
     ts = np.asarray(loadmat(filelocation+'/Matfile/{0}_FMnotch/event.mat'.format(site)).get('ts'))
@@ -70,6 +75,9 @@ def plot_notch_raster(filelocation, site, channel, poststim_window):
     fig1.suptitle('FM Notch Rasters')
     plt.tight_layout()
     plt.savefig(r'C:\Users\kbakshi\Documents\Data\notches\Tb104_{0}_FMnotch_chn{1}.jpg'.format(site, channel), dpi=300)
+    plt.close()
 
 
-plot_notch_raster(r'S:/Smotherman_Lab/Auditory cortex/Tb104', 5, 1, 0.1)
+for site in range(5, 11):
+    for channel in range(1, 33):
+        plot_notch_raster(r'S:/Smotherman_Lab/Auditory cortex/Tb104', site, channel, 0.1)
