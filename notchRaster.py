@@ -1,24 +1,25 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.io import loadmat
+import os
 
 
-def plot_notch_raster(filelocation, site, channel, poststim_window):
+def plot_notch_raster(filelocation, bat, site, channel, poststim_window, savelocation):
     sr = 40000
     poststim_window *= sr
 
     try:
-        spikes = np.loadtxt(filelocation+'/Spiketimes/{0}_FMnotch_chn'.format(site)+str(channel)+'_times.txt',
+        spikes = np.loadtxt(filelocation+bat+'/Spiketimes/{0}_FMnotch_chn'.format(site)+str(channel)+'_times.txt',
                             delimiter=',')
     except ValueError:
-        spikes = np.loadtxt(filelocation+'/Spiketimes/{0}_FMnotch_chn'.format(site)+str(channel)+'_times.txt',
+        spikes = np.loadtxt(filelocation+bat+'/Spiketimes/{0}_FMnotch_chn'.format(site)+str(channel)+'_times.txt',
                             delimiter=',', skiprows=1)
     spikes = spikes[:, 0] * sr
 
-    ts = np.asarray(loadmat(filelocation+'/Matfile/{0}_FMnotch/event.mat'.format(site)).get('ts'))
+    ts = np.asarray(loadmat(filelocation+bat+'/Matfile/{0}_FMnotch/event.mat'.format(site)).get('ts'))
     ts *= sr
 
-    marker = np.asarray(loadmat(filelocation+'/Data/Tb104_{0}_marker_fm.mat'.format(site)).get('marker_fm'))
+    marker = np.asarray(loadmat(filelocation+bat+'/Data/{0}_{1}_marker_fm.mat'.format(bat, site)).get('marker_fm'))
 
     notch_freq = np.unique(marker)
     trial_num = len(marker)/len(notch_freq)
@@ -74,10 +75,17 @@ def plot_notch_raster(filelocation, site, channel, poststim_window):
 
     fig1.suptitle('FM Notch Rasters')
     plt.tight_layout()
-    plt.savefig(r'C:\Users\kbakshi\Documents\Data\notches\Tb104_{0}_FMnotch_chn{1}.jpg'.format(site, channel), dpi=300)
+
+    if not os.path.exists(savelocation+bat+'/'):
+        os.makedirs(savelocation+bat+'/')
+
+    plt.savefig(savelocation+bat+'/Site_{0}_Chn{1}_FMnotch.jpg'.format(site, channel), dpi=300)
     plt.close()
 
 
-for site in range(5, 11):
+for site in range(5, 7):
     for channel in range(1, 33):
-        plot_notch_raster(r'S:/Smotherman_Lab/Auditory cortex/Tb104', site, channel, 0.1)
+        try:
+            plot_notch_raster(r'S:/Smotherman_Lab/Auditory cortex/', 'Tb106', site, channel, 0.1, 'C:/Users/kbakshi/Documents/Data/notches/')
+        except IndexError:
+            pass
